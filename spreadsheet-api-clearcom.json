@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "spreadsheet-api-clearcom",
+  "private_key_id": "7a2c0a3f9d4c061159d877e5b3c4db5a263664e8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDH06bfSLL6gJsH\n8th5bQqZKqGzFSlrJGSjbsrjQ0QgvdT3vXzVQLJobDNUN3f+VCMs35wFmifa0v+R\nDIr+To9cq0Ytm65/vsr74c3xm4URilbnySGNh1ZLADwj6mjwiW+0PbMFkbSKU7Oc\nGeW/+hUU7ubkSemJ8ym5JG+WUpp8MEpt7LnA8ACUJ4huMjoi9HVjqSqvdSp60dHx\nnHFZQWjv57gmV3tyKTKILSQbmyraMq5f0iFqR8FTunYJfvybI2FrDGQClFhj4f7j\nJwRMWbolnoGKnv8YYCBtgQj+KEjVAESphDu7Lh+i7AxqCr9cvLYJ4ZXg5r3QiIsn\ndMAFvJEPAgMBAAECggEABOrPtOsYW5mCXYabm0u6uO+RIHofu+WFENzlljd61WY5\nquNmHBmy9wBB0eU2Vf/vbtrzzAZLZWAC1PVrjpV6HQwqUAeZzcZXci2DM8C7D6Yi\n74ifnQvcn9mm7gIf+420pElOZSkwOaUuPf2iWmaGuHsM6Ho4va6W2Yz5ey5klppO\n4Op58oTD/KMeRziqX6K8oYL69sIUF42mftnhgKyPJQ1lpgwsiJGvmjkS2djD82MV\nKJYEDuAuGFVBcG13Hr0QPFOR+L6OWKLSvWgvnGcTRjSRyBLP46gU6dPPVm6yyqkk\nbEOo/nl7Bm/jUReoH8pucq5GW/5pdkoZdAgrC55i4QKBgQDiwMKiK9MrxwXDyHC+\ngo3FiPPI7I7pxQPGxinqvRUm8OiIZCX+zevMJNDQltjQZvA4LNLBfq6xUnt1KWXy\nIFEAYDbqCv47mL7WZzVv5TqK+fLsTHrzIkmgMbNE/iWOMkcCuISKIY+zUXILepQD\nrxs/30OD+sIRUFK70tzH1I1rYQKBgQDhmc4n3rfjOvaas7vdRHD+lOiklbMNGUfO\nKmtXnUIlIqSoMAGM59QIaaJ6Q4fDRhfA4B+bl44M9HmxqrJsgEj6UsIQFdJrVt15\noJOmgECme46hgat5Rk3HaUNhs5Zmqy3azpYvliV+urQHy8yTu1I2Yf+LuJbk7sNJ\nvuoOvDxCbwKBgCtc+5uxz9d+Xw7a5Ry5sM0G7MAO5SG1iIxZ1yhJ8qKYzY9Pv6hj\nzuUiYUCSqHHqTaQghkl0pYnJoUx9lz5fib4NqFLHuWjCRDSSVjjI2JI9TIR998FJ\nXFUjTAo0pA/2c3gEu2wDEQ0U1T92uJmfwhFL7AhwSu6usrOyloAsmMLhAoGBAN8i\n1nI+6pi4uDM5dKYczLoxJI2td0SMbaYv9K3a4BKE2mFz4gSxQ9nySX8ujfiJunLN\n+tVVKG4N3NPqpsGEfSoCcumf+9ipOTPUrFVx4wAHk4KRE75G2CVVKw1WqHrx8s/J\np2h31KwtFGXloHm6PE2Hzk8vCyhyM/wb9bsPWXbHAoGAGag2R+gFxH/Y9H6Si1G2\njEFMLUjOO5DNGuJj5gppTmqgjcdA3l3QDurIWm+dvhpL4/XaVCUcvJh3HbcaaeiI\nLT5/nOW+uFR6BhueRvtUPvd3wGRGA2yTK32FcnC7lbefMRIyVH7wdBsuDJHy4qAW\ny/MDjd84cToD/6NeL5ZMLaA=\n-----END PRIVATE KEY-----\n",
+  "client_email": "postman-wordpress@spreadsheet-api-clearcom.iam.gserviceaccount.com",
+  "client_id": "113188876899220469338",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/postman-wordpress%40spreadsheet-api-clearcom.iam.gserviceaccount.com"
+}
