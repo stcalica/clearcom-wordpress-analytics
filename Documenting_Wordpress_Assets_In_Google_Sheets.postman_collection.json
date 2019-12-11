@@ -1,0 +1,947 @@
+{
+	"info": {
+		"_postman_id": "b7df3b7d-69b0-4bb9-b776-a1c725cc87a0",
+		"name": "Documenting Wordpress Assets In Google Sheets",
+		"description": "Collection colleciton available Wordpress using the Wordpress API to pull in assets and document in Google Sheets. \n\n\nThis works only on Public sheets.\nFor private sheets tied to a user's account we would have to set up OAuth 2.0. \nIn the Google API Console please create a Sheet API ",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Wordpress Media",
+			"item": [
+				{
+					"name": "Get All Media IDs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6d477e5c-b55d-4bb6-b22e-e788777fe437",
+								"exec": [
+									"var response = pm.response.json(); ",
+									"//var page = parseInt(pm.environment.get('page')); ",
+									"",
+									"if(pm.response.to.be.status(200)){",
+									"    //append Id to mediaIDs",
+									"    pm.response.to.have.status(200);",
+									"    let mediaIds = pm.environment.get('mediaIDs');",
+									"    mediaIds = mediaIds === '' ? [] : mediaIds;  ",
+									"    ",
+									"    //append Id to mediaIDs",
+									"    response.forEach((item) => {",
+									"        mediaIds.push(item.id);",
+									"    });",
+									"    ",
+									"    console.log(mediaIds);",
+									"    ",
+									"    //update environments ",
+									"  //  pm.environment.set('page', page+1);",
+									"    pm.environment.set('mediaIDs', mediaIds);",
+									"//    postman.setNextRequest('Get Media Item');",
+									"    console.log(\"MediaIDs:\\t\" + mediaIds.length);",
+									"} else {",
+									"    console.log('Response was not 200, possible end of pages');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cfec53bf-b0d3-40fa-8d40-5ea8c103ad92",
+								"exec": [
+									"let page = pm.environment.get('page'); ",
+									"console.log(\"Getting Page:\\t\" + page);",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{wp-site}}/wp-json/wp/v2/media?page={{page}}&per_page=100&key=AIzaSyCnSv6GsxFnfBPNwk57CfNQFj7IrTephZs&orderby=id&order=asc",
+							"host": [
+								"{{wp-site}}"
+							],
+							"path": [
+								"wp-json",
+								"wp",
+								"v2",
+								"media"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "{{page}}"
+								},
+								{
+									"key": "per_page",
+									"value": "100"
+								},
+								{
+									"key": "key",
+									"value": "AIzaSyCnSv6GsxFnfBPNwk57CfNQFj7IrTephZs"
+								},
+								{
+									"key": "orderby",
+									"value": "id"
+								},
+								{
+									"key": "order",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Save Media IDs to environment variable\n\nLoop through the pages until empty response is met or 400 status error code is met"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Media Item",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "a4cb9157-2af2-43a1-9587-ac091d6d66a6",
+								"exec": [
+									"//shift off from the media IDs and store the new list of Media IDs after ",
+									"var mediaIds = pm.environment.get('mediaIDs');",
+									"let id = mediaIds.shift();",
+									"pm.environment.set('id', id);",
+									"console.log(\"Fetching id:\\t\" + id);",
+									"console.log(\"New MediaIDs Length:\\t\" + mediaIds.length);",
+									"pm.environment.set('mediaIDs', mediaIds); ",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "82226f5c-6fd5-4453-ae68-00f7075e8ad7",
+								"exec": [
+									"//store in environment variables ",
+									"let response = pm.response.json(); ",
+									"",
+									"//check if it's an image or some pdf or some other attachment ",
+									"//images should be with preivew",
+									"//documents should be added with links to pdf ",
+									"if(response.media_type === 'image'){",
+									"    let id = response.id; ",
+									"    let rendered_link = `=IMAGE(\\\"${response.guid.rendered}\\\",4,250,250)`;  //preview for images",
+									"    let created_gmt = response.date;",
+									"    let modified_gmt = response.modified_gmt; ",
+									"    let type = response.mime_type; ",
+									"    let width = response.media_details.width; ",
+									"    let height = response.media_details.height; ",
+									"    let file = response.media_details.file; ",
+									"    let link = response.link;",
+									"    let slug = response.slug; ",
+									"",
+									"    pm.environment.set('type', type);",
+									"    pm.environment.set('width', width);",
+									"    pm.environment.set('height', height);",
+									"    pm.environment.set('slug', slug);",
+									"    pm.environment.set('source_url', link);",
+									"    pm.environment.set('file', file);",
+									"    pm.environment.set('rendered_link', rendered_link);",
+									"    pm.environment.set('created_gmt', created_gmt);",
+									"    pm.environment.set('modified_gmt', modified_gmt);",
+									"",
+									"} else {",
+									"    let id = response.id; ",
+									"    let rendered_link = response.guid.rendered;  //preview for images",
+									"    let created_gmt = response.date;",
+									"    let modified_gmt = response.modified_gmt; ",
+									"    let type = response.mime_type; ",
+									"    let link = response.link;",
+									"    let slug = response.slug;",
+									"",
+									"    pm.environment.set('type', type);",
+									"    pm.environment.set('slug', slug);",
+									"    pm.environment.set('source_url', link);",
+									"    pm.environment.set('rendered_link', rendered_link);",
+									"    pm.environment.set('created_gmt', created_gmt);",
+									"    pm.environment.set('modified_gmt', modified_gmt);",
+									"    pm.environment.set('file', 'n/a');",
+									"    pm.environment.set('width', 'n/a');",
+									"    pm.environment.set('height', 'n/a');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{wp-site}}/wp-json/wp/v2/media/{{id}}",
+							"host": [
+								"{{wp-site}}"
+							],
+							"path": [
+								"wp-json",
+								"wp",
+								"v2",
+								"media",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Append Media IDs to Sheet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3bbe1735-be8c-4dc3-8719-7b780f52079c",
+								"exec": [
+									"//get next from list",
+									"//shift off from the media IDs and store the new collection after ",
+									"pm.expect(\"Authorization token expired\", () => {",
+									"    if(pm.response.status != 200){",
+									"        console.log()",
+									"    }",
+									"    ",
+									"});",
+									"",
+									"var mediaIds = pm.environment.get('mediaIDs');",
+									"var page = parseInt(pm.environment.get('page'));",
+									"console.log(\"On Page:\\t\" + page);",
+									"if (mediaIds.length === 0 || mediaIds === undefined || mediaIds === null ){",
+									"    //update page number ",
+									"    console.log(\"Updating Page\");",
+									"    pm.environment.set('page', page+1);",
+									"    ",
+									"    let new_page = pm.environment.get('page');",
+									"    console.log(\"New Page:\\t\" + new_page);",
+									"",
+									"    postman.setNextRequest(\"Get All Media IDs\");",
+									"} else {",
+									"    postman.setNextRequest(\"Get Media Item\");",
+									"}",
+									"",
+									"pm.test(\"Authorization token expired\", () => {",
+									"    if(pm.response.status != 200){",
+									"        console.log(\"Last Page was:\\t\"+ page);",
+									"    }",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "ya29.ImG0B6fUo958eHDQ00qNYX-Kpnj9c__Paym0SdvYGqBNalqYel54TIMm3eUyIBQOfgfkkjyx-Mc9GRKGtcqthR1srnR991ggSFIoHHctbT4XPAevI5FskTu5esY7nHH7G9gd",
+									"type": "string"
+								},
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer ya29.ImCUB6J4a516QYO8H4jHvoBBXnzWh-Nv-dKy8HsPGJkWPL5LyzwoihSqq1HBmRAt10nieuULf9hglNrXwBmn2C9ikixtXGL_nPBkq6VuKubDo6FYhgjgARWlZLaku_C2Iyg"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"values\": [  [{{id}}, \"{{source_url}}\", '{{rendered_link}}', \"{{type}}\", \"{{slug}}\", \"{{created_gmt}}\", \"{{modified_gmt}}\",  \"{{file}}\" , \"{{width}}\", \"{{height}}\" ] ]\n}\n"
+						},
+						"url": {
+							"raw": "https://sheets.googleapis.com/v4/spreadsheets/1N-sLTnNMyCl5ZQyFHrKU6j09Cd2r4EplewcFnkG5O8U/values/A:AZ:append?insertDataOption=INSERT_ROWS&valueInputOption=USER_ENTERED",
+							"protocol": "https",
+							"host": [
+								"sheets",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v4",
+								"spreadsheets",
+								"1N-sLTnNMyCl5ZQyFHrKU6j09Cd2r4EplewcFnkG5O8U",
+								"values",
+								"A:AZ:append"
+							],
+							"query": [
+								{
+									"key": "insertDataOption",
+									"value": "INSERT_ROWS"
+								},
+								{
+									"key": "valueInputOption",
+									"value": "USER_ENTERED"
+								}
+							]
+						},
+						"description": "//\t\"values\": [  [{{id}}, \"=IMAGE(\\\"{{source_url}}\\\",4,200,200)\", \"{{source_url}}\", \"{{type}}\", \"{{slug}}\", {{width}}, {{height}}, \"{{file}}\" ] ]"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f54c3bf4-0562-4084-96bb-83c28e4f0f5e",
+						"type": "text/javascript",
+						"exec": [
+							"//pm.environment.set('page',1);"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "15ba976a-dd0e-4ec9-bfdf-a1b879b9e946",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Missing IDs Add",
+			"item": [
+				{
+					"name": "Get Media Item Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "a4cb9157-2af2-43a1-9587-ac091d6d66a6",
+								"exec": [
+									"//shift off from the media IDs and store the new list of Media IDs after ",
+									"var mediaIds = pm.environment.get('missingIDs');",
+									"//mediaIds = mediaIds.split(',').map(Number);",
+									"let id = mediaIds.shift();",
+									"pm.environment.set('id', id);",
+									"console.log(\"Fetching id:\\t\" + id);",
+									"console.log(\"New MediaIDs Length:\\t\" + mediaIds.length);",
+									"pm.environment.set('missingIDs', mediaIds); ",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "82226f5c-6fd5-4453-ae68-00f7075e8ad7",
+								"exec": [
+									"//store in environment variables ",
+									"let response = pm.response.json(); ",
+									"//check if it's an image or some pdf or some other attachment ",
+									"//images should be with preivew",
+									"//documents should be added with links to pdf ",
+									"if( pm.response.status !== 'OK' ){",
+									"    console.log(\"Does Not Exist\");",
+									"    postman.setNextRequest('Get Media Item Copy');",
+									"} else {",
+									"    console.log(\"Adding data to environment\");",
+									"    ",
+									"    if(response.media_type === 'image'){",
+									"    let id = response.id; ",
+									"    let rendered_link = `=IMAGE(\\\"${response.guid.rendered}\\\",4,250,250)`;  //preview for images",
+									"    let created_gmt = response.date;",
+									"    let modified_gmt = response.modified_gmt; ",
+									"    let type = response.mime_type; ",
+									"    let width = response.media_details.width; ",
+									"    let height = response.media_details.height; ",
+									"    let file = response.media_details.file; ",
+									"    let link = response.link;",
+									"    let slug = response.slug; ",
+									"",
+									"    pm.environment.set('type', type);",
+									"    pm.environment.set('width', width);",
+									"    pm.environment.set('height', height);",
+									"    pm.environment.set('slug', slug);",
+									"    pm.environment.set('source_url', link);",
+									"    pm.environment.set('file', file);",
+									"    pm.environment.set('rendered_link', rendered_link);",
+									"    pm.environment.set('created_gmt', created_gmt);",
+									"    pm.environment.set('modified_gmt', modified_gmt);",
+									"",
+									"    } else {",
+									"        let id = response.id; ",
+									"        let rendered_link = response.guid.rendered;  //preview for images",
+									"        let created_gmt = response.date;",
+									"        let modified_gmt = response.modified_gmt; ",
+									"        let type = response.mime_type; ",
+									"        let link = response.link;",
+									"        let slug = response.slug;",
+									"    ",
+									"        pm.environment.set('type', type);",
+									"        pm.environment.set('slug', slug);",
+									"        pm.environment.set('source_url', link);",
+									"        pm.environment.set('rendered_link', rendered_link);",
+									"        pm.environment.set('created_gmt', created_gmt);",
+									"        pm.environment.set('modified_gmt', modified_gmt);",
+									"        pm.environment.set('file', 'n/a');",
+									"        pm.environment.set('width', 'n/a');",
+									"        pm.environment.set('height', 'n/a');",
+									"    }",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{wp-site}}/wp-json/wp/v2/media/{{id}}",
+							"host": [
+								"{{wp-site}}"
+							],
+							"path": [
+								"wp-json",
+								"wp",
+								"v2",
+								"media",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Append Media IDs to Sheet Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3bbe1735-be8c-4dc3-8719-7b780f52079c",
+								"exec": [
+									"//get next from list",
+									"//shift off from the media IDs and store the new collection after ",
+									"pm.expect(\"Authorization token expired\", () => {",
+									"    if(pm.response.status != 200){",
+									"        console.log()",
+									"    }",
+									"    ",
+									"});",
+									"var id = pm.environment.get('id');",
+									"var mediaIds = pm.environment.get('missingIDs');",
+									"if (mediaIds.length === 0 || mediaIds === undefined || mediaIds === null ){",
+									"    console.log(mediaIDs);",
+									"    console.log('no more missing mediaIDs')",
+									"} else {",
+									"    postman.setNextRequest(\"Get Media Item Copy\");",
+									"}",
+									"",
+									"pm.test(\"Authorization token expired\", () => {",
+									"    if(pm.response.status != 200){",
+									"        console.log(\"Last mediaID was:\\t\"+ id);",
+									"    }",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "ya29.ImCUB-DC1ONeHNEGvPIZ1SPvrA7UMjgmx36Dv7zkV7NuwnMTA5O77APH8ERVfXCLi9U1uXyKK4oa-VPWNKorUgrBwrcE3PWMUJKTcGGFZgIsGAUDqGS9XPV4wq2Rsr_BRGc",
+									"type": "string"
+								},
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer ya29.ImCUB0MqdFELypscNKCttvAq7c_2yTe2D8mG4_VVBaujpzL2OPymWFvoHagcmMYpEq7XG6OIBep4Nc7k4a7ydpjrMAHq1bNzSmx1c2apVmVif2TH1MBoclYQNa8ImxJeCGg"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"values\": [  [{{id}}, \"{{source_url}}\", '{{rendered_link}}', \"{{type}}\", \"{{slug}}\", \"{{created_gmt}}\", \"{{modified_gmt}}\",  \"{{file}}\" , \"{{width}}\", \"{{height}}\" ] ]\n}\n"
+						},
+						"url": {
+							"raw": "https://sheets.googleapis.com/v4/spreadsheets/1N-sLTnNMyCl5ZQyFHrKU6j09Cd2r4EplewcFnkG5O8U/values/A%3AZ:append?insertDataOption=INSERT_ROWS&valueInputOption=USER_ENTERED&key={{key}}",
+							"protocol": "https",
+							"host": [
+								"sheets",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v4",
+								"spreadsheets",
+								"1N-sLTnNMyCl5ZQyFHrKU6j09Cd2r4EplewcFnkG5O8U",
+								"values",
+								"A%3AZ:append"
+							],
+							"query": [
+								{
+									"key": "insertDataOption",
+									"value": "INSERT_ROWS"
+								},
+								{
+									"key": "valueInputOption",
+									"value": "USER_ENTERED"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								}
+							]
+						},
+						"description": "//\t\"values\": [  [{{id}}, \"=IMAGE(\\\"{{source_url}}\\\",4,200,200)\", \"{{source_url}}\", \"{{type}}\", \"{{slug}}\", {{width}}, {{height}}, \"{{file}}\" ] ]"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Collect Image Publish Status",
+			"item": [
+				{
+					"name": "Get Status",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "52b0add1-2438-4251-bef6-2036d06bb215",
+								"exec": [
+									"//shift off from the media IDs and store the new list of Media IDs after ",
+									"// var mediaIds = pm.environment.get('mediaIDs');",
+									"// let id = mediaIds.shift();",
+									"// pm.environment.set('id', id);",
+									"// console.log(\"Fetching id:\\t\" + id);",
+									"// console.log(\"New MediaIDs Length:\\t\" + mediaIds.length);",
+									"// pm.environment.set('mediaIDs', mediaIds); ",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{wp-site}}/wp-json/wp/v2/media/{{id}}",
+							"host": [
+								"{{wp-site}}"
+							],
+							"path": [
+								"wp-json",
+								"wp",
+								"v2",
+								"media",
+								"{{id}}"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Collect Media Sizes ",
+			"item": [
+				{
+					"name": "Get All Media IDs Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6d477e5c-b55d-4bb6-b22e-e788777fe437",
+								"exec": [
+									"var response = pm.response.json(); ",
+									"//var page = parseInt(pm.environment.get('page')); ",
+									"",
+									"if(pm.response.to.be.status(200)){",
+									"    //append Id to mediaIDs",
+									"    pm.response.to.have.status(200);",
+									"    let mediaIds = pm.environment.get('mediaIDs');",
+									"    mediaIds = mediaIds === '' ? [] : mediaIds;  ",
+									"    ",
+									"    //append Id to mediaIDs",
+									"    response.forEach((item) => {",
+									"        mediaIds.push(item.id);",
+									"    });",
+									"    ",
+									"    console.log(mediaIds);",
+									"    ",
+									"    //update environments ",
+									"  //  pm.environment.set('page', page+1);",
+									"    pm.environment.set('mediaIDs', mediaIds);",
+									"//    postman.setNextRequest('Get Media Item');",
+									"    console.log(\"MediaIDs:\\t\" + mediaIds.length);",
+									"} else {",
+									"    console.log('Response was not 200, possible end of pages');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cfec53bf-b0d3-40fa-8d40-5ea8c103ad92",
+								"exec": [
+									"let page = pm.environment.get('page'); ",
+									"console.log(\"Getting Page:\\t\" + page);",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{wp-site}}/wp-json/wp/v2/media?page={{page}}&per_page=100&key=AIzaSyCnSv6GsxFnfBPNwk57CfNQFj7IrTephZs&orderby=id&order=asc",
+							"host": [
+								"{{wp-site}}"
+							],
+							"path": [
+								"wp-json",
+								"wp",
+								"v2",
+								"media"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "{{page}}"
+								},
+								{
+									"key": "per_page",
+									"value": "100"
+								},
+								{
+									"key": "key",
+									"value": "AIzaSyCnSv6GsxFnfBPNwk57CfNQFj7IrTephZs"
+								},
+								{
+									"key": "orderby",
+									"value": "id"
+								},
+								{
+									"key": "order",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Save Media IDs to environment variable\n\nLoop through the pages until empty response is met or 400 status error code is met"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Media Item Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "a4cb9157-2af2-43a1-9587-ac091d6d66a6",
+								"exec": [
+									"//shift off from the media IDs and store the new list of Media IDs after ",
+									"var mediaIds = pm.environment.get('mediaIDs');",
+									"let id = mediaIds.shift();",
+									"pm.environment.set('id', id);",
+									"console.log(\"Fetching id:\\t\" + id);",
+									"console.log(\"New MediaIDs Length:\\t\" + mediaIds.length);",
+									"pm.environment.set('mediaIDs', mediaIds); ",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "82226f5c-6fd5-4453-ae68-00f7075e8ad7",
+								"exec": [
+									"//store in environment variables ",
+									"let response = pm.response.json(); ",
+									"",
+									"//check if it's an image or some pdf or some other attachment ",
+									"//images should be with preivew",
+									"//documents should be added with links to pdf ",
+									"if(response.media_type === 'image'){",
+									"    let id = response.id; ",
+									"    let rendered_link = `=IMAGE(\\\"${response.guid.rendered}\\\",4,250,250)`;  //preview for images",
+									"    let created_gmt = response.date;",
+									"    let modified_gmt = response.modified_gmt; ",
+									"    let type = response.mime_type; ",
+									"    let width = response.media_details.width; ",
+									"    let height = response.media_details.height; ",
+									"    let file = response.media_details.file; ",
+									"    let link = response.link;",
+									"    let slug = response.slug; ",
+									"",
+									"    pm.environment.set('type', type);",
+									"    pm.environment.set('width', width);",
+									"    pm.environment.set('height', height);",
+									"    pm.environment.set('slug', slug);",
+									"    pm.environment.set('source_url', link);",
+									"    pm.environment.set('file', file);",
+									"    pm.environment.set('rendered_link', rendered_link);",
+									"    pm.environment.set('created_gmt', created_gmt);",
+									"    pm.environment.set('modified_gmt', modified_gmt);",
+									"",
+									"} else {",
+									"    let id = response.id; ",
+									"    let rendered_link = response.guid.rendered;  //preview for images",
+									"    let created_gmt = response.date;",
+									"    let modified_gmt = response.modified_gmt; ",
+									"    let type = response.mime_type; ",
+									"    let link = response.link;",
+									"    let slug = response.slug;",
+									"",
+									"    pm.environment.set('type', type);",
+									"    pm.environment.set('slug', slug);",
+									"    pm.environment.set('source_url', link);",
+									"    pm.environment.set('rendered_link', rendered_link);",
+									"    pm.environment.set('created_gmt', created_gmt);",
+									"    pm.environment.set('modified_gmt', modified_gmt);",
+									"    pm.environment.set('file', 'n/a');",
+									"    pm.environment.set('width', 'n/a');",
+									"    pm.environment.set('height', 'n/a');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{wp-site}}/wp-json/wp/v2/media/{{id}}",
+							"host": [
+								"{{wp-site}}"
+							],
+							"path": [
+								"wp-json",
+								"wp",
+								"v2",
+								"media",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Append Media IDs to Sheet Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3bbe1735-be8c-4dc3-8719-7b780f52079c",
+								"exec": [
+									"//get next from list",
+									"//shift off from the media IDs and store the new collection after ",
+									"pm.expect(\"Authorization token expired\", () => {",
+									"    if(pm.response.status != 200){",
+									"        console.log()",
+									"    }",
+									"    ",
+									"});",
+									"",
+									"var mediaIds = pm.environment.get('mediaIDs');",
+									"var page = parseInt(pm.environment.get('page'));",
+									"console.log(\"On Page:\\t\" + page);",
+									"if (mediaIds.length === 0 || mediaIds === undefined || mediaIds === null ){",
+									"    //update page number ",
+									"    console.log(\"Updating Page\");",
+									"    pm.environment.set('page', page+1);",
+									"    ",
+									"    let new_page = pm.environment.get('page');",
+									"    console.log(\"New Page:\\t\" + new_page);",
+									"",
+									"    postman.setNextRequest(\"Get All Media IDs\");",
+									"} else {",
+									"    postman.setNextRequest(\"Get Media Item\");",
+									"}",
+									"",
+									"pm.test(\"Authorization token expired\", () => {",
+									"    if(pm.response.status != 200){",
+									"        console.log(\"Last Page was:\\t\"+ page);",
+									"    }",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "accessToken",
+									"value": "ya29.ImCUB6J4a516QYO8H4jHvoBBXnzWh-Nv-dKy8HsPGJkWPL5LyzwoihSqq1HBmRAt10nieuULf9hglNrXwBmn2C9ikixtXGL_nPBkq6VuKubDo6FYhgjgARWlZLaku_C2Iyg",
+									"type": "string"
+								},
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer ya29.ImCUB6J4a516QYO8H4jHvoBBXnzWh-Nv-dKy8HsPGJkWPL5LyzwoihSqq1HBmRAt10nieuULf9hglNrXwBmn2C9ikixtXGL_nPBkq6VuKubDo6FYhgjgARWlZLaku_C2Iyg"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"values\": [  [{{id}}, \"{{source_url}}\", '{{rendered_link}}', \"{{type}}\", \"{{slug}}\", \"{{created_gmt}}\", \"{{modified_gmt}}\",  \"{{file}}\" , \"{{width}}\", \"{{height}}\" ] ]\n}\n"
+						},
+						"url": {
+							"raw": "https://sheets.googleapis.com/v4/spreadsheets/1N-sLTnNMyCl5ZQyFHrKU6j09Cd2r4EplewcFnkG5O8U/values/A%3AZ:append?insertDataOption=INSERT_ROWS&valueInputOption=USER_ENTERED&key={{key}}",
+							"protocol": "https",
+							"host": [
+								"sheets",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"v4",
+								"spreadsheets",
+								"1N-sLTnNMyCl5ZQyFHrKU6j09Cd2r4EplewcFnkG5O8U",
+								"values",
+								"A%3AZ:append"
+							],
+							"query": [
+								{
+									"key": "insertDataOption",
+									"value": "INSERT_ROWS"
+								},
+								{
+									"key": "valueInputOption",
+									"value": "USER_ENTERED"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								}
+							]
+						},
+						"description": "//\t\"values\": [  [{{id}}, \"=IMAGE(\\\"{{source_url}}\\\",4,200,200)\", \"{{source_url}}\", \"{{type}}\", \"{{slug}}\", {{width}}, {{height}}, \"{{file}}\" ] ]"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "50b282fd-ac34-41a7-9ea0-bfdc90ca0261",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "ef1d2f77-f8ce-43cf-811c-96544fc46150",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
